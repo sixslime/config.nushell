@@ -4978,3 +4978,9 @@ dp sync
 exit
 6conf
 git init
+gg all
+git remote add origin https://github.com/sixslime/config.nushell.git
+git branch -M main
+git push -u origin main
+git status
+git push -u origin main
