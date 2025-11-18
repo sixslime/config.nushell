@@ -5001,3 +5001,12 @@ ssh --help
 ssh
 Start-service
 6conf
+gg all
+git push -u origin main
+exit
+exit
+git push -u origin main
+exit
+git fetch
+git pull
+git status
