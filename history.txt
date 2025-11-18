@@ -4984,3 +4984,20 @@ git branch -M main
 git push -u origin main
 git status
 git push -u origin main
+gg all
+git remote
+git remote origin
+git fetch
+gh 
+gh auth
+gh auth status
+git push
+git push -u origin main
+killall --help
+help kill
+ssh --help
+^killall ssh-agent
+^eval
+ssh
+Start-service
+6conf
