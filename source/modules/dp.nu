@@ -73,7 +73,7 @@ export def "cd master" --env [pack?: string]: nothing -> nothing {
 export def "cd world" --env [world?: string]: nothing -> nothing {
     cd C:/Users/globb/AppData/Roaming/.minecraft/saves
     if ($world != null) and ($world | path exists) {
-        cd $world
+        cd $"($world)/datapacks"
     } else {
         ls | get name
     }
