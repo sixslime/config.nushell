@@ -7,3 +7,6 @@ export def ncd --env [index: int] nothing -> nothing {
     let target = ls | get name | get $index
     cd $target
 }
+
+export alias h = cd
+export alias i = ls

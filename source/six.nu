@@ -1,2 +1,2 @@
-export alias 6conf = ^start ($nu.config-path | path dirname)
+export alias 6conf = cd $"($nu.config-path | path dirname)/source"
 export def 6help [term: string] { help --find $term | select name category usage }

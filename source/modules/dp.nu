@@ -78,3 +78,16 @@ export def "cd world" --env [world?: string]: nothing -> nothing {
         ls | get name
     }
 }
+
+export def deprecate [version: int]: nothing -> nothing {
+    use gg.nu
+    gg all
+    ^git push
+    let remote_url: string = ^git remote get-url
+    if not ($remote_url | str starts-with "https://github.com/") {
+        print "Git remote is not a github repo"
+        return
+    }
+    let repo: table = $remote_url | parse "https://github.com/{user}/{name}.git"
+    ^gh repo rename $"($repo.name)__legacy($version)"
+}
