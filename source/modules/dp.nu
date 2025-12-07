@@ -57,9 +57,8 @@ export def sync []: nothing -> nothing {
 }
 
 export def go []: nothing -> nothing {
-    use gg.nu
+    ^git push
     sync
-    gg all
 }
 
 export def "cd master" --env [pack?: string]: nothing -> nothing {
@@ -77,6 +76,27 @@ export def "cd world" --env [world?: string]: nothing -> nothing {
     } else {
         ls | get name
     }
+}
+
+export def create [
+    name: string,
+    --private (-p),
+    --hidden (-h)
+    --no-repo (-n),
+] nothing -> nothing {
+    cd (dpath)
+    let repo_name: string = if $hidden {"_" + $name} else {$name}
+    ^gh repo clone sixslimemc/_datapack_template $repo_name
+    cd $repo_name
+    nu ./make.nu $name
+    rm -rfp .git
+    print $"> Created local datapack ($name) in directory ($repo_name)"
+    if $no_repo { return }
+    ^git init
+    ^git add -A
+    ^git commit "init"
+    ^gh repo create $"sixslimemc/($repo_name)" (if $private {"--private"} else {"--public"}) --source=. --remote=origin --push --description="(WIP)"
+    print $"> Created repository sixslimemc/($repo_name)."
 }
 
 export def deprecate [version: int]: nothing -> nothing {
