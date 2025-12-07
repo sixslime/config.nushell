@@ -2,7 +2,9 @@
 export def dpath []: nothing -> string { 'C:/Users/globb/AppData/Roaming/.minecraft/datapacks' }
 
 # Syncs all worlds' datapacks with their './datapacks/dpsync.six'
-export def sync []: nothing -> nothing {
+export def sync [
+    --fresh (-F)
+]: nothing -> nothing {
     glob /Users/globb/AppData/Roaming/.minecraft/saves/*/datapacks/dpsync.txt -D |
     par-each {|world|
         print $"(ansi yb)[($world | path dirname -n 2 | path basename)](ansi reset)"
@@ -21,7 +23,10 @@ export def sync []: nothing -> nothing {
                     "main"
                 }
             }
-            if ($packname | path exists) and (($packname | path type) == dir) {
+            if $fresh and ($packname | path type) == dir {
+                rm -rfp $packname
+            }
+            if ($packname | path type) == dir {
                 cd $packname
 
                 # if already on correct branch:
@@ -56,8 +61,10 @@ export def sync []: nothing -> nothing {
     return
 }
 
-export def go []: nothing -> nothing {
-    ^git push
+export def go [message?: string]: nothing -> nothing {
+    use gg.nu
+    do -i {gg all ($message | default "DP GO!")}
+    do -i {^git push}
     sync
 }
 
@@ -69,13 +76,30 @@ export def "cd master" --env [pack?: string]: nothing -> nothing {
         ls | get name
     }
 }
-export def "cd world" --env [world?: string]: nothing -> nothing {
-    cd C:/Users/globb/AppData/Roaming/.minecraft/saves
-    if ($world != null) and ($world | path exists) {
-        cd $"($world)/datapacks"
-    } else {
-        ls | get name
+
+export def "world" [
+    index?: int,
+    --all (-a),
+    --list (-l),
+
+] nothing -> nothing or nothing -> list<string> {
+    let worlds: list<string> = ls C:/Users/globb/AppData/Roaming/.minecraft/saves |
+    where type == dir |
+    get name |
+    where {$all or ($in | path join "datapacks/dpsync.txt" | path type) == file}
+    if $list {
+        return $worlds | each {$in | path basename}
     }
+    let sync_path: string = if $index != null {
+        $worlds | get $index
+    } else {
+        $worlds | get ($worlds | each {$in | path basename} | input list -if)
+    } |
+    path join "datapacks/dpsync.txt"
+    if not ($sync_path | path exists) {
+        touch $sync_path
+    }
+    ^code $sync_path
 }
 
 export def create [
@@ -90,11 +114,12 @@ export def create [
     cd $repo_name
     nu ./make.nu $name
     rm -rfp .git
+    rm -fp ./make.nu
     print $"> Created local datapack ($name) in directory ($repo_name)"
     if $no_repo { return }
     ^git init
     ^git add -A
-    ^git commit "init"
+    ^git commit -m "init"
     ^gh repo create $"sixslimemc/($repo_name)" (if $private {"--private"} else {"--public"}) --source=. --remote=origin --push --description="(WIP)"
     print $"> Created repository sixslimemc/($repo_name)."
 }
