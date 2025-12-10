@@ -3,7 +3,9 @@ export def dpath []: nothing -> string { 'C:/Users/globb/AppData/Roaming/.minecr
 
 # Syncs all worlds' datapacks with their './datapacks/dpsync.six'
 export def sync [
-    --fresh (-F)
+    --fresh (-F),
+    --only (-o): list<string>,
+    --except (-e): list<string>,
 ]: nothing -> nothing {
     glob /Users/globb/AppData/Roaming/.minecraft/saves/*/datapacks/dpsync.txt -D |
     par-each {|world|
@@ -12,6 +14,11 @@ export def sync [
         let syncpacks = open 'dpsync.txt' | lines
         $syncpacks |
         par-each {|packname|
+            let sat_only: bool = ($only == null) or ($only | where {$in == $packname} | is-not-empty)
+            let sat_except: bool = ($except == null) or ($except | where {$in == $packname} | is-empty)
+            if not ($sat_only and $sat_except) {
+                return
+            }
             print $"(ansi g)> (ansi wb)($packname)(ansi reset)"
             # get current branch:
             let branch = do { 
@@ -28,7 +35,6 @@ export def sync [
             }
             if ($packname | path type) == dir {
                 cd $packname
-
                 # if already on correct branch:
                 if $branch == (^git branch --show-current) {
                     ^git reset --hard
