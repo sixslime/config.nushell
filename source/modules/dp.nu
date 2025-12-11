@@ -87,6 +87,7 @@ export def "world" [
     index?: int,
     --all (-a),
     --list (-l),
+    --open (-o),
 
 ] nothing -> nothing or nothing -> list<string> {
     let worlds: list<string> = ls C:/Users/globb/AppData/Roaming/.minecraft/saves |
@@ -105,7 +106,11 @@ export def "world" [
     if not ($sync_path | path exists) {
         touch $sync_path
     }
-    ^code $sync_path
+    if $open {
+        start ($sync_path | file dirname)
+    } else {
+        ^code $sync_path
+    }
 }
 
 export def create [
