@@ -107,7 +107,7 @@ export def "world" [
         touch $sync_path
     }
     if $open {
-        start ($sync_path | file dirname)
+        start ($sync_path | path dirname)
     } else {
         ^code $sync_path
     }
