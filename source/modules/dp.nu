@@ -67,10 +67,20 @@ export def sync [
     return
 }
 
-export def go [message?: string]: nothing -> nothing {
+export def go [
+    message?: string,
+    --all(-a)
+    ]: nothing -> nothing {
     use gg.nu
-    do -i {gg all ($message | default "DP GO!")}
-    do -i {^git push}
+    let action = {
+        do -i {gg all ($message | default "DP GO!")}
+        do -i {^git push}
+    }
+    if $all {
+        ls (dpath) -f | where type == dir | get name | par-each {cd $in; do $action}
+    } else {
+        do $action
+    }
     sync
 }
 
@@ -116,7 +126,7 @@ export def "world" [
 export def create [
     name: string,
     --private (-p),
-    --hidden (-h)
+    --hidden (-l)
     --no-repo (-n),
 ] nothing -> nothing {
     cd (dpath)
