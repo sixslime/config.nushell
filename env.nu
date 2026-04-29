@@ -3,7 +3,7 @@
 # version = "0.97.1"
 use source *
 
-print $'(ansi white)[($env.USERNAME)@($env.COMPUTERNAME)](ansi reset)'
+# if ($nu.is-interactive) {print $'(ansi white)[($env.USERNAME)@($env.COMPUTERNAME)](ansi reset)'}
 
 def create_left_prompt [] {
     let dir = match (do --ignore-shell-errors { $env.PWD | path relative-to $nu.home-path }) {

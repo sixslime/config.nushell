@@ -6,7 +6,9 @@ export def sync [
     --fresh (-F),
     --only (-o): list<string>,
     --except (-e): list<string>,
+    --this (-t)
 ]: nothing -> nothing {
+    let only = if $this { [(pwd | path basename)] } else { $only };
     glob /Users/globb/AppData/Roaming/.minecraft/saves/*/datapacks/dpsync.txt -D |
     par-each {|world|
         print $"(ansi yb)[($world | path dirname -n 2 | path basename)](ansi reset)"
@@ -78,10 +80,11 @@ export def go [
     }
     if $all {
         ls (dpath) -f | where type == dir | get name | par-each {cd $in; do $action}
+        sync
     } else {
         do $action
+        sync -o [(pwd | path basename)]
     }
-    sync
 }
 
 export def "cd master" --env [pack?: string]: nothing -> nothing {
