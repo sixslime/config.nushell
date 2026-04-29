@@ -21,12 +21,14 @@ export def sync [
             if not ($sat_only and $sat_except) {
                 return
             }
+            let is_tester = $packname | str starts-with "#";
+            let packname = if ($is_tester) {$packname | str substring 1..} else {$packname};
+            let dp_path = dpath | path join $packname;
             print $"(ansi g)> (ansi wb)($packname)(ansi reset)"
             # get current branch:
             let branch = do { 
-                let thisdp = dpath | path join $packname
-                if ($thisdp | path exists) and ($thisdp | path join '.git' | path exists) {
-                    cd $thisdp
+                if ($dp_path | path exists) and ($dp_path | path join '.git' | path exists) {
+                    cd $dp_path
                     ^git branch --show-current
                 } else {
                     "main"
@@ -52,14 +54,18 @@ export def sync [
                     each { ^git branch -D $in }
                 }
             } else {
-                ^gh repo clone $"sixslimemc/($packname)" -- -b $branch
+                if ($is_tester) {
+                    ^git clone $dp_path -l --no-hardlinks
+                } else {
+                    ^gh repo clone $"sixslimemc/($packname)" -- -b $branch
+                }
             }
         }
         # remove datapacks not in dpsync.txt file:
         glob ./*/pack.mcmeta -D | each { path dirname | path basename } |
         where { ($in | path join ".git" | path type) == dir} |
         par-each {|worldpack|
-            if ($syncpacks | all {$in != $worldpack}) {
+            if ($syncpacks | all {($in != $worldpack) and ($in != $"#($worldpack)")}) {
                 print $"(ansi r)X (ansi wb)($worldpack)(ansi reset)"
                 rm -rfp $worldpack
             }
@@ -129,23 +135,22 @@ export def "world" [
 export def create [
     name: string,
     --private (-p),
-    --hidden (-l)
-    --no-repo (-n),
+    --test (-t),
 ] nothing -> nothing {
     cd (dpath)
-    let repo_name: string = if $hidden {"_" + $name} else {$name}
-    ^gh repo clone sixslimemc/_datapack_template $repo_name
-    cd $repo_name
+    let dir_path = $name;
+    ^gh repo clone sixslimemc/_datapack_template $dir_path
+    cd $dir_path
     nu ./make.nu $name
     rm -rfp .git
     rm -fp ./make.nu
-    print $"> Created local datapack ($name) in directory ($repo_name)"
-    if $no_repo { return }
+    print $"> Created local datapack ($name) in directory ($dir_path)"
     ^git init
     ^git add -A
     ^git commit -m "init"
-    ^gh repo create $"sixslimemc/($repo_name)" (if $private {"--private"} else {"--public"}) --source=. --remote=origin --push --description="(WIP)"
-    print $"> Created repository sixslimemc/($repo_name)."
+    if $test { return }
+    ^gh repo create $"sixslimemc/($name)" (if $private {"--private"} else {"--public"}) --source=. --remote=origin --push --description="(WIP)"
+    print $"> Created repository sixslimemc/($name)."
 }
 
 export def deprecate [version: int]: nothing -> nothing {
