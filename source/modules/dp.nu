@@ -15,14 +15,14 @@ export def sync [
         cd ($world | path dirname) 
         let syncpacks = open 'dpsync.txt' | lines
         $syncpacks |
-        par-each {|packname|
+        par-each {|line|
+            let is_tester = $line | str starts-with "#";
+            let packname = if ($is_tester) {$line | str substring 1..} else {$line};
             let sat_only: bool = ($only == null) or ($only | where {$in == $packname} | is-not-empty)
             let sat_except: bool = ($except == null) or ($except | where {$in == $packname} | is-empty)
             if not ($sat_only and $sat_except) {
                 return
             }
-            let is_tester = $packname | str starts-with "#";
-            let packname = if ($is_tester) {$packname | str substring 1..} else {$packname};
             let dp_path = dpath | path join $packname;
             print $"(ansi g)> (ansi wb)($packname)(ansi reset)"
             # get current branch:
@@ -41,12 +41,12 @@ export def sync [
                 cd $packname
                 # if already on correct branch:
                 if $branch == (^git branch --show-current) {
-                    ^git reset --hard
-                    ^git pull
+                    ^git reset --hard -q
+                    ^git pull -q
                 } else {
-                    ^git fetch --all
-                    ^git switch -C $branch --track $"origin/($branch)"
-                    ^git pull
+                    ^git fetch --all -q
+                    ^git switch -C $branch --track $"origin/($branch)" -q
+                    ^git pull -q
                     # delete all other branches:
                     ^git branch | lines |
                     each { str substring 2.. | str trim } |
@@ -55,9 +55,9 @@ export def sync [
                 }
             } else {
                 if ($is_tester) {
-                    ^git clone $dp_path -l --no-hardlinks
+                    ^git clone $dp_path -lq --no-hardlinks -b $branch
                 } else {
-                    ^gh repo clone $"sixslimemc/($packname)" -- -b $branch
+                    ^gh repo clone $"sixslimemc/($packname)" -- -b $branch -q
                 }
             }
         }

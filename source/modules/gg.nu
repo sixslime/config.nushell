@@ -8,3 +8,10 @@ export def all [
         ^git push
     }
 }
+
+export def chmod [
+    file: string,
+    mod: string = "+x",
+]: {
+    ^git update-index --add --chmod=($mod) $file;
+}
