@@ -16,18 +16,20 @@ export def sync [
         let syncpacks = open 'dpsync.txt' | lines
         $syncpacks |
         par-each {|line|
-            let is_tester = $line | str starts-with "#";
-            let packname = if ($is_tester) {$line | str substring 1..} else {$line};
+            let explicit_remote = $line | str starts-with "#";
+            let packname = if ($explicit_remote) {$line | str substring 1..} else {$line};
             let sat_only: bool = ($only == null) or ($only | where {$in == $packname} | is-not-empty)
             let sat_except: bool = ($except == null) or ($except | where {$in == $packname} | is-empty)
             if not ($sat_only and $sat_except) {
                 return
             }
             let dp_path = dpath | path join $packname;
+            let local_exists = ($dp_path | path exists) and ($dp_path | path join '.git' | path exists);
+            let use_remote = $explicit_remote or (not $local_exists);
             print $"(ansi g)> (ansi wb)($packname)(ansi reset)"
             # get current branch:
             let branch = do { 
-                if ($dp_path | path exists) and ($dp_path | path join '.git' | path exists) {
+                if $local_exists {
                     cd $dp_path
                     ^git branch --show-current
                 } else {
@@ -54,7 +56,7 @@ export def sync [
                     each { ^git branch -D $in }
                 }
             } else {
-                if ($is_tester) {
+                if (not $use_remote) {
                     ^git clone $dp_path -lq --no-hardlinks -b $branch
                 } else {
                     ^gh repo clone $"sixslimemc/($packname)" -- -b $branch -q
@@ -77,12 +79,15 @@ export def sync [
 
 export def go [
     message?: string,
-    --all(-a)
+    --all(-a),
+    --push(-p),
     ]: nothing -> nothing {
     use gg.nu
     let action = {
-        do -i {gg all ($message | default "DP GO!")}
-        do -i {^git push}
+        do -i {gg all ($message | default "-")}
+        if $push {
+            do -i {^git push}
+        }
     }
     if $all {
         ls (dpath) -f | where type == dir | get name | par-each {cd $in; do $action}
