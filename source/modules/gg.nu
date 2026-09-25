@@ -1,9 +1,15 @@
 export def all [
     desc: string = '-',
     --push (-p),
+    --recursive (-r),
 ]: {
-    ^git add -A;
-    ^git commit -am $desc;
+    if $recursive {
+        ^git submodule foreach --recursive $"nu -c 'do -i {^git add -A; ^git commit -am \"('[submodule] ' + $desc)\"}; if ($push) {^git push}'";
+    }
+    do -i {
+        ^git add -A;
+        ^git commit -am $desc;
+    }
     if $push {
         ^git push
     }
