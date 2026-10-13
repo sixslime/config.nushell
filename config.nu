@@ -42,5 +42,7 @@ alias hi = h ..;
 # alaises:
 alias reboot = sudo reboot;
 
+# modules:
+
 # end command:
 h
