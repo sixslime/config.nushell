@@ -20,9 +20,6 @@
 # remove welcome message:
 $env.config.show_banner = false;
 
-# remove right prompt:
-$env.PROMPT_COMMAND_RIGHT = { '' };
-
 # path:
 $env.path ++= [
     ~/Desktop/user_PATH,
