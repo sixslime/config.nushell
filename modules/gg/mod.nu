@@ -29,7 +29,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<branch: 
             remote: $upstream,
             status: $status,
         }
-    }
+    } else { $in }
 }
 
 export alias wp = w -p
