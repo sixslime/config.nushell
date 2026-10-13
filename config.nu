@@ -29,17 +29,18 @@ $env.path ++= [
 ];
 
 # zoxide (h):
-source $"($nu.default-config-dir)/zoxide.nu";
-export def --env --wrapped h [...args] {
-  if ($args | length) > 0 {
-    __zoxide_z ...$args;
-  };
-  clear;
-  print $"[ (pwd) ]";
-  ls -a | reject modified size
+source ~/.zoxide.nu;
+
+def --env --wrapped h [...args] {
+    if ($args | length) > 0 {
+      __zoxide_z ...$args;
+    };
+    clear;
+    print $"[ (pwd) ]";
+    ls -a | reject modified size
 }
-export alias hh = h ~;
-export alias hi = h ..;
+alias hh = h ~;
+alias hi = h ..;
 
 # alaises:
 alias reboot = sudo reboot;

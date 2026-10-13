@@ -17,4 +17,8 @@
 # You can remove these comments if you want or leave
 # them for future reference
 
-zoxide init nushell --no-cmd | save -f $"($nu.default-config-dir)/zoxide.nu";
+const NU_LIB_DIRS = $NU_LIB_DIRS ++ [
+    $"($nu.default-config-dir)/modules"
+];
+
+zoxide init nushell --no-cmd | save -f ~/.zoxide.nu;
