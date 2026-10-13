@@ -28,7 +28,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<branch: 
         $in | insert push {
             remote: $upstream,
             status: $status,
-        };
+        }
     }
 }
 
