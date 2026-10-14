@@ -4,7 +4,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<branch: 
     let branch = ^git branch --no-color --show-current;
     let diff = getDiff '--staged' 'HEAD';
     if ($diff | is-empty) {
-        print -e $"No changes to commit. \(($branch))";
+        print -e $"(ansi yellow)No changes to commit. \(($branch))(ansi reset)";
         return null;
     };
     let message = if not ($message | is-empty) {
@@ -12,7 +12,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<branch: 
     } else {
         '-'
     };
-    print -e $"Committing to ($branch)...";
+    print -e $"(ansi blue)Committing to ($branch)...(ansi reset)";
     ^git commit -qam $message;
     let shortHash = ^git rev-parse --short HEAD;
     {
@@ -42,11 +42,11 @@ def doPush []: nothing -> oneof<record, record<remote: string, diff: list<string
     let upstream = ^git rev-parse --abbrev-ref --symbolic-full-name @{u};
     let diffCode = ^git diff $branch $upstream --quiet | complete | get exit_code;
     if $diffCode == 0 {
-        print -e $"No differences to push. \(($branch) == ($upstream))";
+        print -e $"(ansi yellow)No differences to push. \(($branch) == ($upstream))(ansi reset)";
         return null;
     };
     let diff = getDiff $branch $upstream;
-    print -e $"Pushing ($branch) to ($upstream)...";
+    print -e $"(ansi blue)Pushing ($branch) to ($upstream)...(ansi reset)";
     let completion = ^git push | complete;
     if ($completion.exit_code == 0) {
         {
