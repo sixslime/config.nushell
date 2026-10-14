@@ -1,16 +1,16 @@
 
-export def w [--push (-p), ...message: string]: nothing -> oneof<record<changes: list<string>, message: string, branch: string,  hash: string>, nothing> {
+export def w [--push (-p), ...message: string]: nothing -> oneof<record<branch: string, hash: string, message: string, diff: list<string>, summary: string>, nothing> {
     ^git add -A;
-    let changes = ^git status --short | lines;
+    let branch = ^git branch --no-color --show-current;
+    let diff = getDiff '--staged' 'HEAD';
+    if ($diff | is-empty) {
+        print -e $"No changes to commit. \(($branch))";
+        return null;
+    };
     let message = if not ($message | is-empty) {
         $message | str join ' '
     } else {
         '-'
-    };
-    let branch = ^git branch --no-color --show-current;
-    if ($changes | is-empty) {
-        print -e $"No changes to commit. \(($branch))";
-        return null;
     };
     print -e $"Committing to ($branch)...";
     ^git commit -qam $message;
@@ -19,11 +19,22 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<changes:
         branch: $branch,
         hash: $shortHash,
         message: $message,
-        changes: $changes,
+        diff: $diff.changes,
+        summary: $diff.summary,
     }
     | if $push {
         insert push (doPush)
     } else { $in }
+}
+
+def getDiff [from: string, to: string]: nothing -> oneof<nothing, record<changes: list<string>, summary: string>> {
+    let diffOut = ^git diff $from $to --stat --no-color | lines;
+    if ($diffOut | is-empty) { null } else {
+        {
+            changes: ($diffOut | slice ..(-2)),
+            summary: ($diffOut | last),
+        }
+    }
 }
 
 def doPush []: nothing -> oneof<record, record<remote: string, diff: list<string>, summary: string>> {
@@ -34,12 +45,7 @@ def doPush []: nothing -> oneof<record, record<remote: string, diff: list<string
         print -e $"No differences to push. \(($branch) == ($upstream))";
         return null;
     };
-    let diff = ^git diff $branch $upstream --stat --no-color | lines | do {
-        {
-            changes: ($in | slice ..(-2)),
-            summary: ($in | last),
-        }
-    };
+    let diff = getDiff $branch $upstream;
     print -e $"Pushing ($branch) to ($upstream)...";
     let completion = ^git push | complete;
     if ($completion.exit_code == 0) {
