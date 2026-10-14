@@ -12,6 +12,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<changes:
         print -e $"No changes to commit. \(($branch))";
         return null;
     };
+    print -e $"Committing to ($branch)...";
     ^git commit -qam $message;
     let shortHash = ^git rev-parse --short HEAD;
     {
@@ -25,18 +26,36 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<changes:
     } else { $in }
 }
 
-def doPush []: nothing -> record<remote: string, status: oneof<bool, record>> {
+def doPush []: nothing -> oneof<record, record<remote: string, diff: list<string>, summary: string>> {
     let branch = ^git branch --no-color --show-current;
     let upstream = ^git rev-parse --abbrev-ref --symbolic-full-name @{u};
-    let diffCode = ^git diff --quiet | complete | get exit_code;
-    print -e $"Pushing to '($upstream)'...";
+    let diffCode = ^git diff $branch $upstream --quiet | complete | get exit_code;
+    if $diffCode == 0 {
+        print -e $"No differences to push. \(($branch) == ($upstream))";
+        return null;
+    };
+    let diff = ^git diff $branch $upstream --stat --no-color | lines | do {
+        {
+            changes: ($in | slice ..(-2)),
+            summary: ($in | last),
+        }
+    };
+    print -e $"Pushing ($branch) to ($upstream)...";
     let completion = ^git push | complete;
-    let status = if ($completion.exit_code == 0) { true } else { $completion };
-    {
-        remote: $upstream,
-        status: $status,
+    if ($completion.exit_code == 0) {
+        print -e "Push success.";
+        {
+            remote: $upstream,
+            diff: $diff.changes,
+            summary: $diff.summary,
+        }
+    } else {
+        print -e "Push failed.";
+        $completion
     }
 }
 export def wp [...message: string] {
-    if (w -p ...$message)
+    w -p ...$message | default {
+        doPush;
+    }
 }

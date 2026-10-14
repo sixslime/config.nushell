@@ -42,6 +42,9 @@ alias hi = h ..;
 # alaises:
 alias reboot = sudo reboot;
 
+# config:
+$env.config.hooks.display_output = 'if (term size).columns >= 100 { table -e } else { table -e -d 1 }';
+
 # modules:
 
 # end command:
