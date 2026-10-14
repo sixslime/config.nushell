@@ -33,7 +33,7 @@ def --env --wrapped h [...args] {
       __zoxide_z ...$args;
     };
     clear;
-    print $"[ (pwd) ]";
+    print $"(ansi white)[ (pwd) ](ansi reset)";
     ls -a | reject modified size
 }
 alias hh = h ~;
