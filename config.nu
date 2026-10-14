@@ -33,7 +33,7 @@ def --env --wrapped h [...args] {
       __zoxide_z ...$args;
     };
     clear;
-    print $"(ansi white)[ (pwd) ](ansi reset)";
+    print $"(ansi light_gray)[ (pwd) ](ansi reset)";
     ls -a | reject modified size
 }
 alias hh = h ~;
@@ -46,8 +46,12 @@ alias reboot = sudo reboot;
 $env.config.hooks.display_output = 'do { let cols = (term size).columns; let value = $in; if $cols >= 100 { $value | table -e } else if $cols >= 80 { $value | table -e -d 1 } else { $value | table }}';
 
 # modules:
-use gg;
-use gg [wp, w];
+use universal\gg;
+use universal\gg [wp, w];
+
+# colors:
+$env.config.color_config.separator = "white";
+$env.config.color_config.row_index = "white_bold";
 
 # end command:
 h
