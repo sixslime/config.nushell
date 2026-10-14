@@ -16,11 +16,11 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<branch: 
     ^git commit -qam $message;
     let hash = ^git rev-parse HEAD;
     {
+        summary: $diff.summary,
+        diff: $diff.changes,
+        message: $message,
         branch: $branch,
         hash: $hash,
-        message: $message,
-        diff: $diff.changes,
-        summary: $diff.summary,
     }
     | if $push {
         insert push (doPush)
