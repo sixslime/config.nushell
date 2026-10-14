@@ -50,9 +50,9 @@ def doPush []: nothing -> oneof<record, record<remote: string, diff: list<string
     let completion = ^git push | complete;
     if ($completion.exit_code == 0) {
         {
-            remote: $upstream,
-            diff: $diff.changes,
             summary: $diff.summary,
+            diff: $diff.changes,
+            remote: $upstream,
         }
     } else {
         print -e $"(ansi light_red)Push failed!(ansi reset)";
