@@ -18,9 +18,9 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<branch: 
     {
         summary: $diff.summary,
         diff: $diff.changes,
-        message: $message,
         branch: $branch,
         hash: $hash,
+        message: $message,
     }
     | if $push {
         insert push (doPush)
