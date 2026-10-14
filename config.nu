@@ -46,6 +46,8 @@ alias reboot = sudo reboot;
 $env.config.hooks.display_output = 'do { let cols = (term size).columns; let value = $in; if $cols >= 100 { $value | table -e } else if $cols >= 80 { $value | table -e -d 1 } else { $value | table }}';
 
 # modules:
+use gg;
+use gg [wp, w];
 
 # end command:
 h
