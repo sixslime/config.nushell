@@ -1,3 +1,0 @@
-[submodule "modules/universal"]
-	path = modules/universal
-	url = https://github.com/sixslime/config.nushell.universal_modules.git
