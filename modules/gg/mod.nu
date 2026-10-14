@@ -49,14 +49,13 @@ def doPush []: nothing -> oneof<record, record<remote: string, diff: list<string
     print -e $"Pushing ($branch) to ($upstream)...";
     let completion = ^git push | complete;
     if ($completion.exit_code == 0) {
-        print -e "Push success.";
         {
             remote: $upstream,
             diff: $diff.changes,
             summary: $diff.summary,
         }
     } else {
-        print -e "Push failed.";
+        print -e $"(ansi light_red)Push failed!(ansi reset)";
         $completion
     }
 }
