@@ -12,7 +12,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<branch: 
     } else {
         '-'
     };
-    print -e $"(ansi blue)Committing to ($branch)...(ansi reset)";
+    print -e $"(ansi green)Committing to ($branch)...(ansi reset)";
     ^git commit -qam $message;
     let shortHash = ^git rev-parse --short HEAD;
     {
@@ -46,7 +46,7 @@ def doPush []: nothing -> oneof<record, record<remote: string, diff: list<string
         return null;
     };
     let diff = getDiff $branch $upstream;
-    print -e $"(ansi blue)Pushing ($branch) to ($upstream)...(ansi reset)";
+    print -e $"(ansi green)Pushing ($branch) to ($upstream)...(ansi reset)";
     let completion = ^git push | complete;
     if ($completion.exit_code == 0) {
         {
