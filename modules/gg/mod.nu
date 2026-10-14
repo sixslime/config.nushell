@@ -14,7 +14,7 @@ export def w [--push (-p), ...message: string]: nothing -> oneof<record<branch: 
     };
     print -e $"(ansi green)Committing to ($branch)...(ansi reset)";
     ^git commit -qam $message;
-    let hash = ^git rev-parse --short HEAD;
+    let hash = ^git rev-parse HEAD;
     {
         branch: $branch,
         hash: $hash,
