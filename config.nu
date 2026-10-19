@@ -66,5 +66,10 @@ use universal\gg [
 $env.config.color_config.separator = "white";
 $env.config.color_config.row_index = "white_bold";
 
+# quick commands:
+def --wrapped rip [url: string, ...args] {
+    ^yt-dlp.exe $url -f "ba[ext=wav]/ba[acodec^=mp4a]/ba[ext=aac]/ba[acodec=mp3]" ...$args;
+}
+
 # end command:
 h
