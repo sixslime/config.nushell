@@ -36,6 +36,7 @@ def --env --wrapped h [...args] {
     print $"(ansi light_gray)[ (pwd) ](ansi reset)";
     ls -a | reject modified size
 }
+
 alias hh = h ~;
 alias hi = h ..;
 
@@ -55,7 +56,8 @@ $env.config.hooks.display_output = {
 
 # modules:
 use universal;
-use universal/standard_toplevel.nu;
+use universal/standard_toplevel.nu *;
+use zoxide_h *;
 
 # colors:
 $env.config.color_config.separator = "white";
