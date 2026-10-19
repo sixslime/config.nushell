@@ -55,15 +55,7 @@ $env.config.hooks.display_output = {
 
 # modules:
 use universal;
-use universal/gg [
-    w,
-    wp,
-    wr,
-    wrp,
-];
-use universal/fs [
-    in,
-];
+use universal/standard_toplevel.nu;
 
 # colors:
 $env.config.color_config.separator = "white";
