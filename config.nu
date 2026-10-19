@@ -54,12 +54,15 @@ $env.config.hooks.display_output = {
 }
 
 # modules:
-use universal\gg;
-use universal\gg [
+use universal;
+use universal/gg [
     w,
     wp,
     wr,
     wrp,
+];
+use universal/fs [
+    in,
 ];
 
 # colors:
